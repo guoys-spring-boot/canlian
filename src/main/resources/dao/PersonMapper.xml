@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- namespace名称空间 确保语句 唯一 -->
+<mapper namespace="cn.itcast.bos.dao.business.PersonDao">
+	<!-- 如果表列名 和 属性名 完全一致，省略resultMap -->
+
+    <resultMap id="personMap" type="cn.itcast.bos.domain.business.Person">
+        <id column="id" property="id"  />
+        <result column="name" property="name"/>
+        <result column="sex" property="sex"/>
+        <result column="identity" property="identity"/>
+        <result column="birthday" property="deformity"/>
+        <result column="gender" property="bankid"/>
+        <result column="adress" property="address"/>
+        <result column="phonenumber" property="phonenumber"/>
+        <result column="leixing" property="leixing"/>
+		<result column="canji" property="canji"/>
+		<result column="xingzhi" property="xingzhi"/>
+        <result column="zhuangtai" property="zhuangtai"/>
+        <result column="beizhu" property="beizhu"/>
+        <result column="quyu" property="quyu" />
+        <result column="repeatFlag" property="repeatFlag" />
+        <result column="date" property="uploadDate" />
+    </resultMap>
+
+
+	<select id="findAll" resultMap="personMap">
+        select * from base_user t order by t.name
+    </select>
+
+    <select id="listAllAreas" resultMap="personMap" >
+        SELECT DISTINCT quyu from base_user where quyu is not null ORDER by quyu
+    </select>
+
+    <select id="findById" resultMap="personMap">
+        SELECT * FROM base_user where id = #{id}
+    </select>
+
+    <select id="findByCondition" resultMap="personMap">
+        select t.*,
+        case when t1.cnt > 1 then '重复' ELSE '' end as repeatFlag
+        from base_user t
+        LEFT JOIN (select count(*) as cnt, identity as i1 from base_user group by identity having cnt > 1) t1
+        ON t.identity = t1.i1
+        WHERE  1=1
+        <if test="name != null and name != ''">
+            <bind name="likeName" value="'%' + name + '%'"/>
+            and name like #{likeName}
+        </if>
+        <if test="identity != null and identity != ''">
+            <bind name="likeIdentity" value="'%' + identity + '%'"/>
+            and identity like #{likeIdentity}
+        </if>
+        <if test="leixing != null and leixing != ''">
+            and leixing = #{leixing}
+        </if>
+        <if test="quyu != null and quyu != ''">
+            and quyu = #{quyu}
+        </if>
+        <if test="zhuangtai != null and zhuangtai != ''">
+            and zhuangtai = #{zhuangtai}
+        </if>
+        <if test="repeatFlag != null and repeatFlag != ''">
+            and t1.cnt > 1
+        </if>
+        <if test="uploadDate != null and uploadDate != ''">
+            and left(date, 7) = left(#{uploadDate}, 7)
+        </if>
+        order by t.name
+    </select>
+
+    <select id="findTotalCount" resultType="int">
+        select count(*) from base_user
+    </select>
+
+    <insert id="insert">
+        INSERT INTO base_user
+        (id, name, sex, identity, deformity, bankid,
+         adress, phonenumber, leixing, canji, xingzhi,
+         zhuangtai, beizhu, quyu, date)
+        VALUES (#{id}, #{name}, #{sex}, #{identity}, #{deformity}, #{bankid},
+        #{address}, #{phonenumber}, #{leixing}, #{canji}, #{xingzhi},
+        #{zhuangtai}, #{beizhu}, #{quyu}, #{uploadDate})
+    </insert>
+
+    <update id="update">
+        UPDATE base_user
+        SET
+        <if test="name != null and name != ''">
+            name = #{name},
+        </if>
+        <if test="sex != null and sex != ''">
+            sex = #{sex},
+        </if>
+        <if test="identity != null and identity != ''">
+            identity = #{identity},
+        </if>
+        <if test="deformity != null and deformity != ''">
+            deformity = #{deformity},
+        </if>
+        <if test="address != null and address != ''">
+            adress = #{address},
+        </if>
+        <if test="leixing != null and leixing != ''">
+            leixing = #{leixing},
+        </if>
+        <if test="xingzhi != null and xingzhi != ''">
+            xingzhi = #{xingzhi},
+        </if>
+        <if test="bankid != null and bankid != ''">
+            bankid = #{bankid},
+        </if>
+        <if test="beizhu != null and beizhu != ''">
+            beizhu = #{beizhu},
+        </if>
+        <if test="phonenumber != null and phonenumber != ''">
+            phonenumber = #{phonenumber},
+        </if>
+        <if test="canji != null and canji != ''">
+            canji = #{canji},
+        </if>
+        <if test="zhuangtai != null and zhuangtai != ''">
+            zhuangtai = #{zhuangtai},
+        </if>
+        <if test="quyu != null and quyu != ''">
+            quyu = #{quyu},
+        </if>
+        id = id
+        where
+        <if test="id == null or id == ''">
+            identity = #{identity}
+        </if>
+        <if test="id != null and id != ''">
+            id = #{id}
+        </if>
+    </update>
+
+    <select id="countPersonByIdentity" resultType="int">
+        SELECT COUNT(*) FROM base_user WHERE identity = #{identity}
+    </select>
+
+    <delete id="delete">
+        delete from base_user where id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- namespace名称空间 确保语句 唯一 -->
+<mapper namespace="cn.itcast.bos.dao.business.PlayMoneyDao">
+	<!-- 如果表列名 和 属性名 完全一致，省略resultMap -->
+
+    <resultMap id="PlayMoneyRecordMap" type="cn.itcast.bos.domain.business.PlayMoneyRecord">
+        <id column="id" property="id"  />
+        <result column="bankname" property="bankname"/>
+        <result column="bankid" property="bankid"/>
+        <result column="bankname" property="bankname"/>
+        <result column="money" property="money"/>
+        <result column="data" property="date"/>
+        <result column="identify" property="identity" />
+    </resultMap>
+    <insert id="insert">
+        INSERT INTO bankinfo
+        (id, bankid, bankname, money, data, identify)
+        VALUES (#{id}, #{bankid}, #{bankname}, #{money}, #{date}, #{identity})
+    </insert>
+    
+    <insert id="batchInsert">
+        INSERT INTO bankinfo
+        (id, bankid, bankname, money, data, identify)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator="," >
+            (#{item.id}, #{item.bankid}, #{item.bankname}, #{item.money}, #{item.date}, #{item.identity})
+        </foreach>
+    </insert>
+
+    <select id="findByCondition" resultMap="PlayMoneyRecordMap">
+        SELECT * FROM bankinfo WHERE  bankid = #{bankid} order by data
+    </select>
+</mapper>

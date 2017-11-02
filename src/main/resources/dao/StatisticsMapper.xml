@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- namespace名称空间 确保语句 唯一 -->
+<mapper namespace="cn.itcast.bos.dao.business.StatisticsDao">
+    <!-- 如果表列名 和 属性名 完全一致，省略resultMap -->
+
+    <resultMap id="playMoneyMap" type="cn.itcast.bos.domain.business.PlayMoneyStaticticsBean">
+        <result column="name" property="name"/>
+        <result column="sex" property="sex"/>
+        <result column="identity" property="identity"/>
+        <result column="gender" property="bankid"/>
+        <result column="adress" property="address"/>
+        <result column="canji" property="canji"/>
+        <result column="date" property="date"/>
+        <result column="money" property="money"/>
+        <result column="deformity" property="deformity"/>
+        <result column="xingzhi" property="xingzhi" />
+        <result column="bankname" property="bankname" />
+        <result column="quyu" property="quyu" />
+        <result column="zhuangtai" property="zhuangtai" />
+    </resultMap>
+
+
+    <select id="playMoneyStatistics" resultMap="playMoneyMap">
+        SELECT
+            user.name, user.sex, user.identity, user.deformity,user.canji, user.bankid, user.xingzhi,user.quyu,
+            user.zhuangtai, user.adress, bank.data AS DATE, money, bank.bankname
+        from base_user user
+          RIGHT JOIN bankinfo bank
+            on user.bankid = bank.bankid and user.IDENTITY = bank.identify
+        where 1=1
+        <if test="leixing != null and leixing != ''">
+            and leixing = #{leixing}
+        </if>
+        <if test="quyu != null and quyu != ''">
+            and quyu = #{quyu}
+        </if>
+        <if test="beginDate != null and beginDate != ''">
+            <![CDATA[
+            and data >= str_to_date(#{beginDate}, '%Y-%m-%d')
+            ]]>
+        </if>
+        <if test="endDate != null and endDate != ''">
+            <![CDATA[
+            and data <= str_to_date(#{endDate}, '%Y-%m-%d')
+            ]]>
+        </if>
+        <if test="zhuangtai != null and zhuangtai != ''">
+            and zhuangtai = #{zhuangtai}
+        </if>
+        ORDER BY
+        user.name,
+        data desc
+    </select>
+    <select id="countPlayMoneyStatistics" resultType="long">
+        SELECT
+        count(*)
+        from base_user user
+        RIGHT JOIN bankinfo bank
+        on user.bankid = bank.bankid
+        where 1=1
+        <if test="leixing != null and leixing != ''">
+            and leixing = #{leixing}
+        </if>
+        <if test="quyu != null and quyu != ''">
+            and quyu = #{quyu}
+        </if>
+        <if test="beginDate != null and beginDate != ''">
+            <![CDATA[
+            and data >= str_to_date(#{beginDate}, '%Y-%m-%d')
+            ]]>
+        </if>
+        <if test="endDate != null and endDate != ''">
+            <![CDATA[
+            and data <= str_to_date(#{endDate}, '%Y-%m-%d')
+            ]]>
+        </if>
+        <if test="zhuangtai != null and zhuangtai != ''">
+            and zhuangtai = #{zhuangtai}
+        </if>
+    </select>
+
+
+
+</mapper>
