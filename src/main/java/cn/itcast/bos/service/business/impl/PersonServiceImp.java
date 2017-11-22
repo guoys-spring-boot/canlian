@@ -70,8 +70,56 @@ public class PersonServiceImp implements PersonService {
         }
 
         List<Person> needUpdate = needUpdateFromExcel(excel);
+
+        /*
+         * 修改规则:
+          * 状态有效值为1， 2， 3
+          * 1为死亡直接处理
+          * 2为困难取消， 当为2时， 如果残疾类型为困难时， 状态变更为取消， 如果残疾类型为重度&困难时， 残疾类型修改为
+          * 困难，状态仍为正常
+          * 3为重度取消， 当状态为取消时，状态直接修改为取消
+         */
         for (Person person : needUpdate) {
-            dao.update(person);
+            if("1".equals(person.getZhuangtai())){
+                // do nothing
+                dao.update(person);
+                continue;
+            }
+            if("2".equals(person.getZhuangtai())){
+                Person condition = new Person();
+                condition.setIdentity(person.getIdentity());
+                List<Person> personList = dao.findByCondition(condition);
+                if(personList == null || personList.isEmpty()){
+                    continue;
+                }
+                for (Person _person : personList) {
+                    person.setId(_person.getId());
+                    // 取消困难， 直接取消
+                    if("1".equals(_person.getLeixing())){
+                        person.setZhuangtai("2");
+                        dao.update(person);
+                    }
+                    if("3".equals(_person.getLeixing())){
+                        // 对状态不做修改
+                        person.setZhuangtai(null);
+                        // 修改残疾等级为重度
+                        person.setLeixing("2");
+                        dao.update(person);
+                    }
+                    if("2".equals(_person.getLeixing())){
+                        // 对重度用户不做操作
+                        person.setZhuangtai(null);
+                        dao.update(person);
+                    }
+                }
+                continue;
+            }
+
+            // 直接修改状态为取消
+            if("3".equals(person.getZhuangtai())){
+                person.setZhuangtai("2");
+                dao.update(person);
+            }
         }
 
     }
