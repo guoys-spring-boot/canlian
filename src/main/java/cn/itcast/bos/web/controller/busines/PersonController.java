@@ -70,6 +70,12 @@ public class PersonController {
         return result;
     }
 
+    @ResponseBody
+    @RequestMapping("/compact")
+    public long compact(){
+        return personService.compact();
+    }
+
     @RequestMapping("/exportperson")
     public void exportPerson(Person person1, HttpServletRequest request, HttpServletResponse response) throws IOException {
 

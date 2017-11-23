@@ -5,6 +5,8 @@ import cn.itcast.bos.domain.business.Person;
 import cn.itcast.bos.service.business.PersonService;
 import cn.itcast.bos.utils.POIHelper;
 import cn.itcast.bos.utils.UUIDUtils;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multiset;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
@@ -14,10 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by gys on 2017/8/26.
@@ -210,5 +211,149 @@ public class PersonServiceImp implements PersonService {
         Person person = new Person();
         person.setId(personId);
         dao.delete(person);
+    }
+
+    @Override
+    public long compact() {
+        Person condition = new Person();
+        condition.setRepeatFlag("1");
+        List<Person> people = listAllPerson(condition);
+        if(people == null || people.isEmpty()){
+            return 0L;
+        }
+        long result = 0L;
+        ArrayListMultimap<CompactKey, Person> map = ArrayListMultimap.create();
+        for (Person person : people) {
+            map.put(new CompactKey(person.getIdentity(), person.getDeformity(), person.getBankid()), person);
+        }
+
+        for (CompactKey key : map.keySet()) {
+            List<Person> personList = map.get(key);
+            if(personList.size() <= 1){
+                continue;
+            }
+            long l;
+            try {
+                l = compactRecord(personList);
+            } catch (ParseException e) {
+                // 错误数据
+                continue;
+            }
+            result += l;
+        }
+        return result;
+    }
+
+    /**
+     * 合并记录， 找出最后上传的， 修改残疾等级，然后删除其它
+     * @param personList
+     * @return
+     */
+    private long compactRecord(List<Person> personList) throws ParseException {
+        Person lastOne = null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date lastDate = null;
+        for (Person person : personList) {
+            if(lastOne == null){
+                lastOne = person;
+                if(person.getUploadDate() != null){
+                    lastDate = sdf.parse(person.getUploadDate());
+                }
+            }
+            if(person.getUploadDate() == null){
+                continue;
+            }
+            Date date = sdf.parse(person.getUploadDate());
+            if(lastDate == null){
+                lastDate = date;
+                lastOne = person;
+            }
+
+            if(!person.equals(lastOne) && lastDate.equals(date)){
+                // 如果有两条记录都是同一天上传， 则不做处理
+                return 0L;
+            }
+            if(lastDate.before(date)){
+                lastDate = date;
+                lastOne = person;
+            }
+        }
+        if(lastOne == null){
+            return 0L;
+        }
+        // 最后为困难&重度， 直接返回
+        if(lastOne.getLeixing().equals("3")){
+            personList.remove(lastOne);
+            update(lastOne);
+            removeList(personList);
+            return personList.size() + 1;
+        }
+
+        caculateLevel(lastOne, personList);
+        personList.remove(lastOne);
+        update(lastOne);
+        removeList(personList);
+
+        return personList.size() + 1;
+    }
+
+    /**
+     * 计算残疾等级
+     * @param result
+     * @param personList
+     */
+    private void caculateLevel(Person result, List<Person> personList){
+        String leixing = result.getLeixing();
+
+        for (Person person : personList) {
+            if(person.getLeixing().equals("3")){
+                result.setLeixing("3");
+                break;
+            }
+            if(!person.getLeixing().equals(leixing)){
+                result.setLeixing("3");
+                break;
+            }
+        }
+    }
+
+    private void removeList(List<Person> list){
+        for (Person person : list) {
+            delete(person.getId());
+        }
+    }
+
+    private class CompactKey{
+        private String identity;
+
+        private String deformity;
+
+        private String bankId;
+
+        public CompactKey(String identity, String deformity, String bankId) {
+            this.identity = identity;
+            this.deformity = deformity;
+            this.bankId = bankId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CompactKey that = (CompactKey) o;
+
+            if (identity != null ? !identity.equals(that.identity) : that.identity != null) return false;
+            if (deformity != null ? !deformity.equals(that.deformity) : that.deformity != null) return false;
+            return bankId != null ? bankId.equals(that.bankId) : that.bankId == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = identity != null ? identity.hashCode() : 0;
+            result = 31 * result + (deformity != null ? deformity.hashCode() : 0);
+            result = 31 * result + (bankId != null ? bankId.hashCode() : 0);
+            return result;
+        }
     }
 }

@@ -44,7 +44,12 @@
         $.enumComboboxFromUrl('quyu', '${path}/business/listAllArea');
 
         $("#export").click(function () {
-            window.location = "${path}/business/exportperson?name=" + $("#name").textbox('getValue') + "&identity=" + $("#identity").textbox('getValue') + "&leixing=" + $("#leixing").textbox('getValue') + "&quyu=" + $("#quyu").textbox('getValue') + "&zhuangtai=" + $("#zhuangtai").textbox('getValue') + "&repeatFlag=" + $("#repeatFlag").attr('checked') + "&uploadDate=" + $("#uploadDate").textbox('getValue')
+            if($("#repeatFlag").attr('checked')){
+                window.location = "${path}/business/exportperson?name=" + $("#name").textbox('getValue') + "&identity=" + $("#identity").textbox('getValue') + "&leixing=" + $("#leixing").textbox('getValue') + "&quyu=" + $("#quyu").textbox('getValue') + "&zhuangtai=" + $("#zhuangtai").textbox('getValue') + "&repeatFlag=" + $("#repeatFlag").attr('checked') + "&uploadDate=" + $("#uploadDate").textbox('getValue')
+			}else {
+                window.location = "${path}/business/exportperson?name=" + $("#name").textbox('getValue') + "&identity=" + $("#identity").textbox('getValue') + "&leixing=" + $("#leixing").textbox('getValue') + "&quyu=" + $("#quyu").textbox('getValue') + "&zhuangtai=" + $("#zhuangtai").textbox('getValue') + "&uploadDate=" + $("#uploadDate").textbox('getValue')
+			}
+
         });
 
 	});

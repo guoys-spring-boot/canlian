@@ -44,6 +44,11 @@
             text: '删除',
             iconCls: 'icon-cancel',
             handler: doDelete
+        },{
+            id: 'button-compact',
+            text: '合并',
+            iconCls: 'icon-edit',
+            handler: doCompact
         }];
 
 
@@ -179,6 +184,13 @@
             var item = $('#grid').datagrid('getSelected');
             var url = '${pageContext.request.contextPath}/business/toUpdatePerson?personId=' + item.id;
             $(window).openWindow('addUserWindow', url, 650, 440, '人员管理', dialogOptions);
+        }
+
+        function doCompact() {
+            $(this)._confirm("确定要合并码？", function () {
+                alert(123);
+            });
+            alert(123);
         }
         function doDelete() {
             var item = $('#grid').datagrid('getSelected');

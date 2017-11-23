@@ -10,6 +10,13 @@ import java.util.List;
  */
 public interface PersonService {
 
+    /**
+     * 合并数据， 合并所有重复的数据， 以最新上传的数据为主
+     * 身份证，残疾证和银行卡号三个相同，就视为同一条数据
+     * 返回合并的条数
+     */
+    long compact();
+
     Person getById(String id);
 
     void update(Person person);
