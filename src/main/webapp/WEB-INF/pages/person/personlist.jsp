@@ -188,9 +188,18 @@
 
         function doCompact() {
             $(this)._confirm("确定要合并码？", function () {
-                alert(123);
+                $.ajax("${pageContext.request.contextPath}/business/compact", {
+                    async: false,
+                    success: function (data) {
+                        $(this)._alert("合并成功：" + data);
+                        window.parent.reloadGrid();
+                    },
+                    error:function (data) {
+                        $(this)._alert(JSON.stringify(data, null, 4));
+                    }
+                })
             });
-            alert(123);
+
         }
         function doDelete() {
             var item = $('#grid').datagrid('getSelected');
