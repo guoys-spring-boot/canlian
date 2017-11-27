@@ -217,6 +217,8 @@ public class PersonServiceImp implements PersonService {
     public long compact() {
         Person condition = new Person();
         condition.setRepeatFlag("1");
+        // 只查询正常状态的人
+        condition.setZhuangtai("3");
         List<Person> people = listAllPerson(condition);
         if(people == null || people.isEmpty()){
             return 0L;
