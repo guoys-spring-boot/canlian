@@ -27,6 +27,10 @@
 <script
 	src="${pageContext.request.contextPath }/js/easyui/locale/easyui-lang-zh_CN.js"
 	type="text/javascript"></script>
+
+    <script
+            src="${pageContext.request.contextPath }/js/platform/common.js"
+            type="text/javascript"></script>
 <script type="text/javascript">
 	if(window.top!=window){
 		top.location.href = window.location.href;		
@@ -120,6 +124,9 @@
 	function onClick(event, treeId, treeNode, clickFlag) {
 		// 判断树菜单节点是否含有 page属性
 		if (treeNode.page!=undefined && treeNode.page!= "") {
+
+		    //$(this)._openTab('tabs', treeNode.page, treeNode.name, window);
+
 			if ($("#tabs").tabs('exists', treeNode.name)) {// 判断tab是否存在
 				$('#tabs').tabs('select', treeNode.name); // 切换tab
 			} else {

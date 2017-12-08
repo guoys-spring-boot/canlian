@@ -98,11 +98,21 @@ $.extend({
         }
     },
     createIFrameContainer: function (containerId, url) {
-        var $container = $('<div class="easyui-window" id="'+containerId+'"></div>');
-        var $iFrame = $('<iframe src="'+url+'" style="width:100%;height:100%;border:0;display: none" ></iframe>');
-        var $loading = $('<div style="align-items: center;width: 100%; height: 100%" >loading...</div>');
+        var $container = $('<div id="'+containerId+'" style="width:100%;height:100%;border:0; overflow:hidden;"></div>');
+        var $iFrame = $('<iframe src="'+url+'" style="width:100%;height:100%;border:0;display: none;scrolling="auto"" ></iframe>');
+        var _html = "<div id='loading' style='position:absolute;left:0;width:100%;height:100%;top:0;background:#E0ECFF;opacity:0.8;filter:alpha(opacity=80);'>\
+                     <div style='position:absolute;  cursor1:wait;left:45%;top:45%;width:auto;height:16px;padding:12px 5px 10px 30px;\
+                     background:#fff url(/js/easyui/themes/default/images/loading.gif) no-repeat scroll 5px 10px;border:2px solid #ccc;color:#000;'>\
+                     正在加载，请等待...\
+                     </div></div>";
+        var $loading = $(_html);
         $container.append($iFrame);
         $container.append($loading);
+        $iFrame.load(function () {
+            $iFrame.show();
+            $loading.remove();
+        });
+
         return $container;
     },
     _log : function (str) {
@@ -154,20 +164,13 @@ $.fn.extend({
         options.height = _height;
         var $iframe = $container.find('iframe');
         var $loadingDiv = $container.find('div');
+
         if(extOptions){
             $container.window($.mergeJsonObject(options, extOptions));
-            $iframe.load(function () {
-                $iframe.show("fast", "linear");
-                $loadingDiv.hide();
-            });
             return;
         }
         $container.window(options);
         $container.window('open');
-        $container.load(function () {
-            $iframe.show("fast", "linear");
-            $loadingDiv.hide();
-        })
 
 
     },
@@ -231,18 +234,13 @@ $.fn.extend({
             containerWindow = this;
         }
 
-        var $container = $(containerWindow)[0].$("#" + containerId);
+        var $container = containerWindow.$("#" + containerId);
 
         if($container.tabs('exists', title)){
             $container.tabs('select', title);
             return;
         }
-
-        var content = '<div style="width:100%;height:100%;overflow:hidden;">'
-            + '<iframe src="'
-            + url
-            + '" scrolling="auto" style="width:100%;height:100%;border:0;" ></iframe></div>';
-
+        var content = $.createIFrameContainer('default', url);
         $container.tabs('add', {
             title : title,
             content : content,
