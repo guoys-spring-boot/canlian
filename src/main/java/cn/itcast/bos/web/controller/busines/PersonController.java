@@ -73,6 +73,13 @@ public class PersonController {
     @ResponseBody
     @RequestMapping("/compact")
     public long compact(){
+
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         return personService.compact();
     }
 

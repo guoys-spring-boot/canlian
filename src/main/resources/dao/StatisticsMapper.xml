@@ -58,7 +58,7 @@
         count(*)
         from base_user user
         RIGHT JOIN bankinfo bank
-        on user.bankid = bank.bankid
+        on user.bankid = bank.bankid and user.IDENTITY = bank.identify
         where 1=1
         <if test="leixing != null and leixing != ''">
             and leixing = #{leixing}

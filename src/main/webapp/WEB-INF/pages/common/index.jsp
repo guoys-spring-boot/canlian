@@ -125,23 +125,23 @@
 		// 判断树菜单节点是否含有 page属性
 		if (treeNode.page!=undefined && treeNode.page!= "") {
 
-		    //$(this)._openTab('tabs', treeNode.page, treeNode.name, window);
+		    $(this)._openTab('tabs', treeNode.page, treeNode.name);
 
-			if ($("#tabs").tabs('exists', treeNode.name)) {// 判断tab是否存在
-				$('#tabs').tabs('select', treeNode.name); // 切换tab
-			} else {
-				// 开启一个新的tab页面
-				var content = '<div style="width:100%;height:100%;overflow:hidden;">'
-						+ '<iframe src="'
-						+ treeNode.page
-						+ '" scrolling="auto" style="width:100%;height:100%;border:0;" ></iframe></div>';
-
-				$('#tabs').tabs('add', {
-					title : treeNode.name,
-					content : content,
-					closable : true
-				});
-			}
+//			if ($("#tabs").tabs('exists', treeNode.name)) {// 判断tab是否存在
+//				$('#tabs').tabs('select', treeNode.name); // 切换tab
+//			} else {
+//				// 开启一个新的tab页面
+//				var content = '<div style="width:100%;height:100%;overflow:hidden;">'
+//						+ '<iframe src="'
+//						+ treeNode.page
+//						+ '" scrolling="auto" style="width:100%;height:100%;border:0;" ></iframe></div>';
+//
+//				$('#tabs').tabs('add', {
+//					title : treeNode.name,
+//					content : content,
+//					closable : true
+//				});
+//			}
 		}
 	}
 

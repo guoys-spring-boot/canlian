@@ -99,8 +99,8 @@ $.extend({
     },
     createIFrameContainer: function (containerId, url) {
         var $container = $('<div id="'+containerId+'" style="width:100%;height:100%;border:0; overflow:hidden;"></div>');
-        var $iFrame = $('<iframe src="'+url+'" style="width:100%;height:100%;border:0;display: none;scrolling="auto"" ></iframe>');
-        var _html = "<div id='loading' style='position:absolute;left:0;width:100%;height:100%;top:0;background:#E0ECFF;opacity:0.8;filter:alpha(opacity=80);'>\
+        var $iFrame = $('<iframe src="'+url+'" style="width:100%;height:100%;border:0;scrolling="auto"" ></iframe>');
+        var _html = "<div id='loading' style='position:absolute;left:0;width:100%;height:100%;top:0;background:#F4F4F4;opacity:0.7;filter:alpha(opacity=80);'>\
                      <div style='position:absolute;  cursor1:wait;left:45%;top:45%;width:auto;height:16px;padding:12px 5px 10px 30px;\
                      background:#fff url(/js/easyui/themes/default/images/loading.gif) no-repeat scroll 5px 10px;border:2px solid #ccc;color:#000;'>\
                      正在加载，请等待...\
@@ -108,8 +108,9 @@ $.extend({
         var $loading = $(_html);
         $container.append($iFrame);
         $container.append($loading);
+        $loading.width = $iFrame.width;
+        $loading.height = $iFrame.height;
         $iFrame.load(function () {
-            $iFrame.show();
             $loading.remove();
         });
 
@@ -231,7 +232,7 @@ $.fn.extend({
         }
 
         if(!containerWindow || containerWindow == undefined){
-            containerWindow = this;
+            containerWindow = window;
         }
 
         var $container = containerWindow.$("#" + containerId);
@@ -267,5 +268,26 @@ $.fn.extend({
                 }
             }
         }
+    },
+    _showLoading : function(id){
+        if(!id){
+            id = "loading";
+        }
+        var _html = "<div id='"+id+"' style='position:absolute;left:0;width:100%;height:100%;top:0;z-index:99999;background:#F4F4F4;opacity:0.8;filter:alpha(opacity=80);'>\
+                     <div style='position:absolute;  cursor1:wait;left:45%;top:45%;width:auto;height:16px;padding:12px 5px 10px 30px;\
+                     background:#fff url(/js/easyui/themes/default/images/loading.gif) no-repeat scroll 5px 10px;border:2px solid #ccc;color:#000;'>\
+                     正在处理，请等待...\
+                     </div></div>";
+        var $loading = $(_html);
+        var $body = window.$("body");
+        $body.append($loading);
+        $loading.css({
+            position : 'absolute',
+            left : 0,
+            width : '100%',
+            top : 0,
+            height : '100%'
+        });
+        return $loading;
     }
 });

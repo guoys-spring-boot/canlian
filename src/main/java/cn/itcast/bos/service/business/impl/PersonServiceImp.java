@@ -30,6 +30,12 @@ public class PersonServiceImp implements PersonService {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    private static final String DIFFICULT = "1"; //困难
+
+    private static final String SERIOUS = "2"; // 重度
+
+    private static final String DIFF_SERI = "3"; //重度&困难
+
     @Autowired
     private PersonDao dao;
 
@@ -81,11 +87,15 @@ public class PersonServiceImp implements PersonService {
           * 3为重度取消， 当状态为取消时，状态直接修改为取消
          */
         for (Person person : needUpdate) {
+
+            // 死亡处理
             if("1".equals(person.getZhuangtai())){
                 // do nothing
                 dao.update(person);
                 continue;
             }
+
+            // 困难取消
             if("2".equals(person.getZhuangtai())){
                 Person condition = new Person();
                 condition.setIdentity(person.getIdentity());
@@ -96,18 +106,18 @@ public class PersonServiceImp implements PersonService {
                 for (Person _person : personList) {
                     person.setId(_person.getId());
                     // 取消困难， 直接取消
-                    if("1".equals(_person.getLeixing())){
+                    if(DIFFICULT.equals(_person.getLeixing())){
                         person.setZhuangtai("2");
                         dao.update(person);
                     }
-                    if("3".equals(_person.getLeixing())){
+                    if(DIFF_SERI.equals(_person.getLeixing())){
                         // 对状态不做修改
                         person.setZhuangtai(null);
                         // 修改残疾等级为重度
-                        person.setLeixing("2");
+                        person.setLeixing(SERIOUS);
                         dao.update(person);
                     }
-                    if("2".equals(_person.getLeixing())){
+                    if(SERIOUS.equals(_person.getLeixing())){
                         // 对重度用户不做操作
                         person.setZhuangtai(null);
                         dao.update(person);
@@ -116,8 +126,44 @@ public class PersonServiceImp implements PersonService {
                 continue;
             }
 
-            // 直接修改状态为取消
+            // 重度取消
             if("3".equals(person.getZhuangtai())){
+                Person condition = new Person();
+                condition.setIdentity(person.getIdentity());
+                List<Person> personList = dao.findByCondition(condition);
+                if(personList == null || personList.isEmpty()){
+                    continue;
+                }
+                for (Person _person : personList) {
+                    person.setId(_person.getId());
+
+                    // 重度取消， 对困难类型不做操作
+                    if(DIFFICULT.equals(_person.getLeixing())){
+                        person.setZhuangtai(null);
+                        dao.update(person);
+                    }
+
+                    // 重度取消， 对重度&困难类型 修改为 困难
+                    if(DIFF_SERI.equals(_person.getLeixing())){
+                        // 对状态不做修改
+                        person.setZhuangtai(null);
+                        // 修改残疾等级为重度
+                        person.setLeixing(DIFFICULT);
+                        dao.update(person);
+                    }
+
+                    // 重度取消， 对重度类型，直接修改为取消
+                    if(SERIOUS.equals(_person.getLeixing())){
+                        // 直接取消
+                        person.setZhuangtai("2");
+                        dao.update(person);
+                    }
+                }
+                continue;
+            }
+
+            // 直接修改状态为取消
+            if("4".equals(person.getZhuangtai())){
                 person.setZhuangtai("2");
                 dao.update(person);
             }

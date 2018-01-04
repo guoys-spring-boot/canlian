@@ -188,16 +188,19 @@
 
         function doCompact() {
             $(this)._confirm("确定要合并码？", function () {
+                var loading = $(this)._showLoading();
                 $.ajax("${pageContext.request.contextPath}/business/compact", {
-                    async: false,
+                    async: true,
                     success: function (data) {
+                        loading.remove();
                         $(this)._alert("合并成功：" + data);
                         window.parent.reloadGrid();
                     },
                     error:function (data) {
                         $(this)._alert(JSON.stringify(data, null, 4));
                     }
-                })
+                });
+
             });
 
         }
